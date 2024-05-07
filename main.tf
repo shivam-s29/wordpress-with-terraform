@@ -1,7 +1,8 @@
 #provider.tf
 provider "aws" {
   region     = "us-east-1"
-}
+ }
+
 #vpc.tf
 resource "aws_vpc" "main" {
   cidr_block       = var.vpc_cidr
@@ -18,7 +19,8 @@ resource "aws_subnet" "main" {
   availability_zone = "us-east-1a"
   tags = {
     Name = "subnet"
-
+  }
+}
 #creating internet gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
@@ -45,7 +47,7 @@ resource "aws_route_table_association" "subnet_assoc" {
 resource "aws_security_group" "wordpress_sg" {
   vpc_id = aws_vpc.main.id
   # Inbound Rules
- # HTTP access from anywhere
+  # HTTP access from anywhere
   ingress {
     from_port   = 80
     to_port     = 80
@@ -72,13 +74,20 @@ resource "aws_security_group" "wordpress_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-    # MYSQL access from anywhere
-  ingress {
-    from_port   = 33060
-    to_port     = 33060
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # MYSQL access from anywhere
+ ingress {
+   from_port   = 3306
+   to_port     = 3306
+   protocol    = "tcp"
+   cidr_blocks = ["0.0.0.0/0"]
+ }
+ # MYSQL access from anywhere
+ ingress {
+   from_port   = 33060
+   to_port     = 33060
+   protocol    = "tcp"
+   cidr_blocks = ["0.0.0.0/0"]
+ }
   # Outbound Rules
   # Internet access to anywhere
   egress {
@@ -91,6 +100,8 @@ resource "aws_security_group" "wordpress_sg" {
     Name = "Web SG"
   }
 }
+
+
 # Defining CIDR Block for VPC
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
@@ -99,24 +110,28 @@ variable "vpc_cidr" {
 variable "subnet_cidr" {
   default = "10.0.1.0/24"
 }
+
 # Creating EC2 instance
 resource "aws_instance" "wordpress_instance" {
-  ami                         = "ami-07caf09b362be10b8"
+  ami                         = "ami-0a1179631ec8933d7"
   instance_type               = "t2.micro"
   count                       = 1
   key_name                    = "shivam-key"
-  vpc_security_group_ids      = [aws_security_group.wordpress_sg.id]
+  vpc_security_group_ids      = ["${aws_security_group.wordpress_sg.id}"]
   subnet_id                   = aws_subnet.main.id
   associate_public_ip_address = true
   user_data                   = file("userdata.sh")
-  tags = { Name = "Wordpress_Instance"
+  tags = {
+    Name = "Wordpress_Instance"
   }
 }
+
 resource "aws_key_pair" "shivam" {
   key_name   = "shivam-key"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD3F6tyPEFEzV0LX3X8BsXdMsQz1x2cEikKDEY0aIj41qgxMCP/iteneqXSIFZBp5vizPvaoIR3Um9xK7PGoW8giupGn+EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
 }
+
+
 output "public_ip" {
   value = aws_instance.wordpress_instance[*].public_ip
 }
-         
