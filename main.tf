@@ -116,7 +116,7 @@ resource "aws_instance" "wordpress_instance" {
   ami                         = "ami-0a1179631ec8933d7"
   instance_type               = "t2.micro"
   count                       = 1
-  key_name                    = "shivam-key"
+  key_name                    = "p2-key"
   vpc_security_group_ids      = ["${aws_security_group.wordpress_sg.id}"]
   subnet_id                   = aws_subnet.main.id
   associate_public_ip_address = true
@@ -124,11 +124,6 @@ resource "aws_instance" "wordpress_instance" {
   tags = {
     Name = "Wordpress_Instance"
   }
-}
-
-resource "aws_key_pair" "shivam" {
-  key_name   = "shivam-key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD3F6tyPEFEzV0LX3X8BsXdMsQz1x2cEikKDEY0aIj41qgxMCP/iteneqXSIFZBp5vizPvaoIR3Um9xK7PGoW8giupGn+EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM49f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvpFyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"
 }
 
 
